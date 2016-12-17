@@ -25,27 +25,41 @@
          
          <!-- pie chart -->
          <script src="common/js/loader.js"></script>
+
    	</meta>
+
+      <!--Clever Canary required header documents-->
+
+      <link rel="stylesheet" href="https://clevercanary.github.io/ucsc-cgl-style-guide/styles/styles.css">
+
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+
+      <!-- Clever Canary Icons -->
+
+      <link rel="apple-touch-icon-precomposed" sizes="57x57" href="https://clevercanary.github.io/ucsc-cgl-style-guide/images/favicon/apple-touch-icon-57x57.png" />
+      <link rel="apple-touch-icon-precomposed" sizes="114x114" href="https://clevercanary.github.io/ucsc-cgl-style-guide/images/favicon/apple-touch-icon-114x114.png" />
+      <link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://clevercanary.github.io/ucsc-cgl-style-guide/images/favicon/apple-touch-icon-72x72.png" />
+      <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://clevercanary.github.io/ucsc-cgl-style-guide/images/favicon/apple-touch-icon-144x144.png" />
+      <link rel="apple-touch-icon-precomposed" sizes="60x60" href="https://clevercanary.github.io/ucsc-cgl-style-guide/images/favicon/apple-touch-icon-60x60.png" />
+      <link rel="apple-touch-icon-precomposed" sizes="120x120" href="https://clevercanary.github.io/ucsc-cgl-style-guide/images/favicon/apple-touch-icon-120x120.png" />
+      <link rel="apple-touch-icon-precomposed" sizes="76x76" href="https://clevercanary.github.io/ucsc-cgl-style-guide/images/favicon/apple-touch-icon-76x76.png" />
+      <link rel="apple-touch-icon-precomposed" sizes="152x152" href="https://clevercanary.github.io/ucsc-cgl-style-guide/images/favicon/apple-touch-icon-152x152.png" />
+      <link rel="icon" type="image/png" href="https://clevercanary.github.io/ucsc-cgl-style-guide/images/favicon/favicon-196x196.png" sizes="196x196" />
+      <link rel="icon" type="image/png" href="https://clevercanary.github.io/ucsc-cgl-style-guide/images/favicon/favicon-96x96.png" sizes="96x96" />
+      <link rel="icon" type="image/png" href="https://clevercanary.github.io/ucsc-cgl-style-guide/images/favicon/favicon-32x32.png" sizes="32x32" />
+      <link rel="icon" type="image/png" href="https://clevercanary.github.io/ucsc-cgl-style-guide/images/favicon/favicon-16x16.png" sizes="16x16" />
+      <link rel="icon" type="image/png" href="https://clevercanary.github.io/ucsc-cgl-style-guide/images/favicon/favicon-128.png" sizes="128x128" />
+      <meta name="msapplication-TileColor" content="#FFFFFF" />
+      <meta name="msapplication-TileImage" content="mstile-144x144.png" />
+      <meta name="msapplication-square70x70logo" content="mstile-70x70.png" />
+      <meta name="msapplication-square150x150logo" content="mstile-150x150.png" />
+      <meta name="msapplication-wide310x150logo" content="mstile-310x150.png" />
+      <meta name="msapplication-square310x310logo" content="mstile-310x310.png" />
    </head>
    
-   <style>
-      .button {
-         border: none;
-         color: black;
-         text-align: center;
-         text-decoration: none;
-         display: inline-block;
-         margin: 1px 1px;
-         cursor: pointer;
-      }
-
-      hr {
-         border-width: 2px;
-         margin-top: 0.25em;
-         margin-bottom: 0.5em;
-      }
-   </style>
-   
+   <!--
    <div class="imgcgl">
       <div class="imgcontainer">
          <a href="https://genomics.soe.ucsc.edu/">
@@ -58,7 +72,7 @@
    </div>
    <ul class="header text">
       <li class="dropbtn"><a href="../index.html">Home</a></li>
-      <!-- <li><a href="../projects.html">Analysis Dashboard</a></li> -->
+
       <li><a href="index.html">File Browser</a></li>
       <li><a href="../action_service/index.html">Action Service</a></li>
       <li><a href="https://ucsc-cgl.atlassian.net/wiki/">Wiki</a></li>
@@ -66,10 +80,53 @@
       <li><a href="../help.html">Help</a></li>
    </ul>
    
+    -->
    <body ng-controller="API_Controller">
       
    
-      <div>  
+      <div class="cgl-app layout-column layout-fill">
+         <header>
+                <md-toolbar>
+                    <md-toolbar-row>
+                        <img src="https://clevercanary.github.io/ucsc-cgl-style-guide/images/logos/ucsc-gi/logo-ucsc-gi@1x.png" srcset="/ucsc-cgl-style-guide/images/logos/ucsc-gi/logo-ucsc-gi@2x.png 2x, /ucsc-cgl-style-guide/images/logos/ucsc-gi/logo-ucsc-gi@3x.png 3x">
+                        <button md-icon-button menu-open>
+                        <span class="md-button-wrapper">
+                            <md-icon role="img" class="material-icons">menu</md-icon>
+                        </span>
+                        </button>
+                        <button md-icon-button menu-close>
+                        <span class="md-button-wrapper">
+                            <md-icon role="img" class="material-icons">close</md-icon>
+                        </span>
+                        </button>
+                        <cgl-toolbar-nav>
+                            <cgl-toolbar-nav-item>
+                                <a href="#">Analysis Core</a>
+                            </cgl-toolbar-nav-item>
+                            <cgl-toolbar-nav-item class="active">
+                                <a href="index.html">File Browser</a>
+                            </cgl-toolbar-nav-item>
+                            <cgl-toolbar-nav-item>
+                                <a href="../action_service/index.html">Action Service</a>
+                            </cgl-toolbar-nav-item>
+                            <cgl-toolbar-nav-item>
+                                <a href="https://ucsc-cgl.atlassian.net/wiki/">Wiki</a>
+                            </cgl-toolbar-nav-item>
+                            <cgl-toolbar-nav-item>
+                                <a href="../about.html">About</a>
+                            </cgl-toolbar-nav-item>
+                            <cgl-toolbar-nav-item>
+                                <a href="../help.html">Help</a>
+                            </cgl-toolbar-nav-item>
+                        </cgl-toolbar-nav>
+                    </md-toolbar-row>
+                </md-toolbar>
+                <md-toolbar class="subheader">
+                    <md-toolbar-row>
+                        <span class="md-title">File Browser</span>
+                    </md-toolbar-row>
+                </md-toolbar>
+            </header>  
          <div class="container-fluid">
             <div class="row-fluid"> 
                <div class="span2 well text">
@@ -208,4 +265,6 @@
       </footer>
       
    </body>
+
+   <script type="text/javascript" src="https://clevercanary.github.io/ucsc-cgl-style-guide/scripts/cgl-hamburger.component.js"></script>
 </html>
