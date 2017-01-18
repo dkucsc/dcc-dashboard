@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+			<link href="https://fonts.googleapis.com/css?family=Muli" rel="stylesheet">
+			<link rel="stylesheet" type="text/css" href="mystyle.css">
+			<link rel="stylesheet" href="file_browser/common/css/normalize.min.css">
+			<link rel="stylesheet" href="file_browser/common/css/main.min.css">
+			<link rel="stylesheet" href="file_browser/common/css/bootstrap.min.css">
+			<link rel="stylesheet" href="file_browser/common/css/bootstrap-responsive.min.css">
+			<link rel="stylesheet" href="file_browser/common/css/elasticjs.css">
+			<title>About</title>
+			<link rel="stylesheet" type="text/css" href="mystyle.css">
+		</meta>
+	</head>
+	<body>
+		<div class="imgcgl">
+			<div class="imgcontainer">
+				<a href="https://genomics.soe.ucsc.edu/">
+					<img src="UCSC-Logo-genomics-web-80.png" alt="University of California Santa Cruz" class="imglogo" style="padding: 10px">
+				</a>
+			</div>
+			<div class="cglcontainer" style="float: right;">
+				<a href="https://cgl.genomics.ucsc.edu/" class="text">Computational Genomics Laboratory</a>
+			</div>
+		</div>
+		<ul class="header text">
+			<li class="dropbtn"><a href="index.html">Home</a></li>
+			<!-- <li><a href="projects.html">Analysis Dashboard</a></li> -->
+			<li><a href="file_browser">File Browser</a></li>
+			<li><a href="action_service">Action Service</a></li>
+		   <li><a href="https://ucsc-cgl.atlassian.net/wiki/">Wiki</a></li>
+		   <li><a href="about.html">About</a></li>
+		   <li><a href="help.html">Help</a></li>
+		</ul>
+		<div class="container-fluid">
+			<div class="row-fluid">
+				<div class="text" style="margin: 20px">
+					<h2>Help</h2>
+		  			<p>You can do a bulk download from the Redwood Client using the manifest. To get the manifest, go to the File Browser, scroll to the bottom, and click "Download Manifest".</p>
+		  			<h3>Setting up the Redwood Client</h3>
+		  			<p>You can download the Redwood Client using docker. To download the client, use from the command line:<br>
+		  			<code>docker pull benjaminran/redwood-client</code> </p>
+		  			<h3>Getting the token</h3>
+		  			<p>Contact the admin to get an access token if you don't have one.</p>
+		  			<h3>Perform Bulk Download</h3>
+		  			<p>To do a bulk download, run the following docker command:<br>
+		  				<code>docker run --rm -it -e ACCESS_TOKEN=&lt;my_token&gt; -e REDWOOD_ENDPOINT=storage.ucsc-cgl.org -v `pwd`/&lt;my/data/path&gt;:/dcc/data benjaminran/redwood-client bash bulk_download &lt;my_manifest&gt; data/</code><br>
+		  				This will download the data in the folder specified in the current directory.
+		  			</p>
+		 		</div>
+		 	</div>
+		</div>
+		<footer class="text">
+			<section style="color: white">UCSC Genomics Institute - Analysis Core
+				<ul class="header" style="float: right; font-size:50%; padding: 4px;">
+					<li><a href="index.html">Home</a></li>
+					<li><a href="https://ucsc-cgl.atlassian.net/wiki/">Wiki</a></li>
+					<li><a href="about.html">About</a></li>
+				</ul>
+			</section>
+		</footer>
+	</body>
+</html>

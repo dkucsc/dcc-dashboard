@@ -1,0 +1,6 @@
+flask==0.12
+requests==2.12.4
+requests-oauthlib==0.7.0
+oauth2client
+
+flask-debugtoolbar

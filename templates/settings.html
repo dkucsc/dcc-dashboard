@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="text" style="margin: 20px">
+                <h2>Mission</h2>
+                <p>Our mission as the Analysis Core is to help researchers in the UCSC Genomics Institute use modern tools to accurately and efficiently analyze large volumes of sequence data.  We build the software that makes this possible (the Development team) and we also are responsible for running the "core" analysis pipelines for projects within the Institute (the Production team).  See our detailed mission statement for more information.</p>
+
+                <h2>Available Workflows</h2>
+                <p>We are growing our available pipelines to support projects in the Institute including:</p>
+                <p>
+                    <table class="table-striped">
+                        <thead>
+                            <tr><th><b>Pipeline</b></th>
+                            <th><b>Description</b></th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>RNAseq</td><td>RNASeq analysis using RSEM and Kallisto</td></tr>
+                            <tr><td>Whole Exome/Whole Genome - Germline</td><td>GATK best practices germline pipeline with bcbio</td></tr>
+                            <tr><td>Whole Genome - Somatic</td><td>Whole genome somatic workflows from PCAWG including Sanger, DKFZ, and EMBL best practices or bcbio</td></tr>
+                            <tr><td>Whole Exome - Somatic</td><td>Whole exome somatic workflow with bcbio</td></tr>
+                            <tr><td>ProTECT</td><td>Neoantigen pipeline</td></tr>
+                        </tbody>
+                    </table>
+                </p>
+
+                <h2>Ordering Analysis</h2>
+                <p>You can see our current <a href="https://ucsc-cgl.atlassian.net/wiki/display/PUB/Workflow+Pricing">Workflow Pricing</a> for information on the costs of analyzing samples with these pipelines. Large batches can be processed at reduced rates, please contact us for more information using the "Submit Analysis Request" below.</p>
+                <center>
+                    <h3><a href="https://ucsc-cgl.atlassian.net/wiki/display/PUB/Workflow+Pricing" class="unstyled">Current Analysis Workflows & Pricing</a></h3>
+                    <h3><a href="http://goo.gl/forms/rGWJ1Kdq9h" class="unstyled">Submit Analysis Request</a></h3>
+                    <h3><a href="https://docs.google.com/spreadsheets/d/1R03EV5vH7Moluepb52R3ingso8xIcL352E52XenO5FQ/edit#gid=0" class="unstyled">Submit Workflow Creation Request</a></h3>
+                </center>
+            </div>
+        </div>
+    </div>
+{% endblock %}
