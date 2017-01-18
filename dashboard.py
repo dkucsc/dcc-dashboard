@@ -38,7 +38,7 @@ parser.add_argument("--github-client-secret", dest='github_client_secret', help=
 parser.add_argument('--google-client-id', dest='google_client_id', help="Google client ID")
 parser.add_argument("--google-client-secret", dest='google_client_secret', help='Google client secret')
 parser.add_argument("--port", help='The port to listen on', type=int, default=8000)
-parser.add_argument("-o", "--oauth-environ", dest="oauth_environ", action='store_true', default=True, help="Whether or not to set the OAUTHLIB_INSECURE_TRANSPORT environment variable to '%s'." % OAUTH_INSECURE_TRANSPORT_VALUE)
+parser.add_argument("-o", "--oauth-environ", dest="oauth_environ", action='store_true', default=False, help="Whether or not to set the OAUTHLIB_INSECURE_TRANSPORT environment variable to '%s'." % OAUTH_INSECURE_TRANSPORT_VALUE)
 parser.add_argument("-a", "--github-api-server", dest="github_api_server", default=API_SERVER, help="Almost always: [github.com]")
 parser.add_argument('--github-scopes', dest='github_scopes', action='append', default=[], help='Your requested Github scopes.')
 parser.add_argument('--google-scopes', dest='google_scopes', action='append', default=[], help='Your requested Google scopes.')
@@ -182,7 +182,7 @@ def home():
     google_logged_in = True if 'google_oauth_token' in session else False
     google_authorization_url = url_for('oauth2.authorize', return_url=url_for('home', _external=True))
 
-    return flask.render_template('index.html', page_title='Home',
+    return flask.render_template('index.html', page_title='Analysis Core',
         #username=username,
         #github_logged_in=github_logged_in,
         #github_authorization_url=github_authorization_url,
@@ -191,6 +191,7 @@ def home():
 
 
 if __name__ == '__main__':
+    print args.oauth_environ
     if args.oauth_environ:
         print("Warning: needed to set OAUTHLIB_INSECURE_TRANSPORT=1 environment variable, via os.environ in Python.")
         os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
