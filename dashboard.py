@@ -8,20 +8,27 @@ TODO:
 """
 
 
+import json
 import os, sys
 import logging
 from argparse import ArgumentParser
 import subprocess, shlex
+import hashlib, pickle
 
 import flask
+import six.moves.http_client as httplib
 from flask import request, session, redirect, url_for
 from flask.json import jsonify
 import requests
 from requests_oauthlib import OAuth2Session
+from flask_debugtoolbar import DebugToolbarExtension
+from flask import current_app
 from oauth2client.contrib.flask_util import UserOAuth2
 from oauth2client import client
 from oauth2client.contrib import dictionary_storage
 from oauth2client.contrib.flask_util import _CREDENTIALS_KEY, _DEFAULT_SCOPES
+from oauth2client.contrib.flask_util import _CSRF_KEY, _FLOW_KEY
+from oauth2client.contrib.flask_util import _get_flow_for_token
 import oauth2client
 
 
@@ -68,30 +75,115 @@ DEBUG = args.debug
 
 log = logging
 app = flask.Flask(__name__)
-if DEBUG: app.logger.setLevel(logging.DEBUG)
 app.config['GOOGLE_OAUTH2_CLIENT_ID'] = '872012202875-cjhcvg8t6al188dk122hlfnogqdl8bt2.apps.googleusercontent.com'
 app.config['GOOGLE_OAUTH2_CLIENT_SECRET'] = google_client_secret
 app.secret_key = os.urandom(24)
 if DEBUG:
-    from flask_debugtoolbar import DebugToolbarExtension
+    app.logger.setLevel(logging.DEBUG)
+    app.debug = True
     toolbar = DebugToolbarExtension(app)
 #github_oauth2 = UCSCUserOAuth2(app, client_id='7156cfa0c982a6621530', client_secret=github_client_secret, blueprint_name='github')
 oauth2 = UserOAuth2(app, client_id='872012202875-cjhcvg8t6al188dk122hlfnogqdl8bt2.apps.googleusercontent.com', client_secret=google_client_secret)
 
 
-@app.route("/oauth2callback")
+@app.route("/oauth2authorize")
+def callback2():
+    print("Dumbar")
+    return redirect(url_for('home'))
+
+
+def _make_flow(return_url=None, **kwargs):
+    """Creates a Web Server Flow"""
+    # Generate a CSRF token to prevent malicious requests.
+    csrf_token = hashlib.sha256(os.urandom(1024)).hexdigest()
+    session[_CSRF_KEY] = csrf_token
+    state = json.dumps({
+        'csrf_token': csrf_token,
+        'return_url': return_url
+    })
+    kw = oauth2.flow_kwargs.copy()
+    kw.update(kwargs)
+    extra_scopes = kw.pop('scopes', [])
+    scopes = set(oauth2.scopes).union(set(extra_scopes))
+    flow = client.OAuth2WebServerFlow(client_id=oauth2.client_id,
+        client_secret=oauth2.client_secret, scope=scopes,
+        state=state,
+        redirect_uri=url_for('google_callback', _external=True), **kw)
+    flow_key = _FLOW_KEY.format(csrf_token)
+    session[flow_key] = pickle.dumps(flow)
+    return flow
+@app.route("/google_authorize_view")
+def google_authorize_view():
+    """Flask view that starts the authorization flow.
+
+    Starts flow by redirecting the user to the OAuth2 provider.
+    """
+    args = request.args.to_dict()
+
+    # Scopes will be passed as mutliple args, and to_dict() will only
+    # return one. So, we use getlist() to get all of the scopes.
+    args['scopes'] = request.args.getlist('scopes')
+
+    return_url = args.pop('return_url', None)
+    if return_url is None:
+        return_url = request.referrer or '/'
+
+    flow = _make_flow(return_url=return_url, **args)
+    auth_url = flow.step1_get_authorize_url()
+
+    return redirect(auth_url)
+
+
+@app.route("/google_callback")
 def google_callback():
-    """The view that gets hit after a successful login at the Google OAuth 2.0
-    server."""
-    flow = oauth2._make_flow(return_url=url_for('home', _external=True))
-    if 'code' not in request.args:
-        auth_uri = flow.step1_get_authorize_url()
-        return redirect(auth_uri)
-    else:
-        auth_code = request.args.get('code')
-        credentials = flow.step2_exchange(auth_code)
-        session['credentials'] = credentials.to_json()
-        return redirect(url_for('home'))
+    """Flask view that handles the user's return from OAuth2 provider.
+
+    On return, exchanges the authorization code for credentials and stores
+    the credentials.
+    """
+    if 'error' in request.args:
+        reason = request.args.get(
+            'error_description', request.args.get('error', ''))
+        return ('Authorization failed: {0}'.format(reason),
+                httplib.BAD_REQUEST)
+
+    try:
+        encoded_state = request.args['state']
+        server_csrf = session[_CSRF_KEY]
+        code = request.args['code']
+    except KeyError:
+        return 'Invalid request', httplib.BAD_REQUEST
+
+    try:
+        state = json.loads(encoded_state)
+        client_csrf = state['csrf_token']
+        return_url = state['return_url']
+    except (ValueError, KeyError):
+        return 'Invalid request state', httplib.BAD_REQUEST
+
+    if client_csrf != server_csrf:
+        return 'Invalid request state', httplib.BAD_REQUEST
+
+    flow = _get_flow_for_token(server_csrf)
+
+    if flow is None:
+        return 'Invalid request state', httplib.BAD_REQUEST
+
+    # Exchange the auth code for credentials.
+    try:
+        credentials = flow.step2_exchange(code)
+    except client.FlowExchangeError as exchange_error:
+        current_app.logger.exception(exchange_error)
+        content = 'An error occurred: {0}'.format(exchange_error)
+        return content, httplib.BAD_REQUEST
+
+    # Save the credentials to the storage.
+    self.storage.put(credentials)
+
+    if self.authorize_callback:
+        self.authorize_callback(credentials)
+
+    return redirect(return_url)
 
 
 @app.route("/github_callback")
@@ -109,11 +201,6 @@ def github_callback():
     return redirect(url_for('.home'))
 
 
-@app.route("/file_browser", methods=['GET'])
-def file_browser():
-    return flask.render_template('file_browser.html')
-
-
 @app.route("/github_logout", methods=['GET'])
 def github_logout():
     if 'github_oauth_token' in session: del session['github_oauth_token']
@@ -128,43 +215,45 @@ def google_logout():
     return redirect(url_for('.home'))
 
 
-@app.route('/oauth2callback')
-def callback2():
-    return 'david'
-    flow = oauth2._make_flow(
-        #client_id=google_client_id,
-        #client_secret=google_client_secret,
-        #return_url=url_for('oauth2callback', _external=True))
-        return_url=url_for('home', _external=True))
-        #include_granted_scopes=True)
-    if 'code' not in request.args:
-        auth_uri = flow.step1_get_authorize_url()
-        return redirect(auth_uri)
-    else:
-        auth_code = request.args.get('code')
-        credentials = flow.step2_exchange(auth_code)
-        session['credentials'] = credentials.to_json()
-        return redirect(url_for('home'))
-
-
 @app.route('/settings')
 @oauth2.required
 def settings():
     return flask.render_template('settings.html')
 
 
+@app.route('/redwood')
+def redwood():
+    return flask.render_template('redwood.html', page_title='Redwood')
+
+
+@app.route('/boardwalk')
+def boardwalk():
+    return flask.render_template('boardwalk.html', page_title='Boardwalk')
+
+
+@app.route('/spinnaker')
+def spinnaker():
+    return flask.render_template('spinnaker.html', page_title='Spinnaker')
+
+
+@app.route('/about')
+def about():
+    return flask.render_template('about.html', page_title='About')
+
+
+@app.route('/help')
+def help():
+    return flask.render_template('help.html', page_title='Help')
+
+
+@app.route('/file_browser')
+def file_browser():
+    return flask.render_template('file_browser.html', page_title='File Browser')
+
+
 @app.route('/')
 def home():
     """Home page logic."""
-    # Github OAuth things.
-    #github_logged_in = True if 'github_oauth_token' in session else False
-    #username = session['username'] if (github_logged_in and 'username' in session) else None
-    #github_oauth = OAuth2Session(github_client_id,
-    #    redirect_uri=app_redirect_uri, scope=[])
-    #github_authorization_url, github_state = github_oauth.authorization_url(AUTHORIZATION_BASE_URL)
-    #github_authorization_url = url_for('oauth2.authorize', return_url=url_for('github_callback', _external=True))
-    #session['github_oauth_state'] = github_state
-
     # Google OAuth things.
     if 'google_oauth2_credentials' in session:
         google_credentials = client.OAuth2Credentials.from_json(session['google_oauth2_credentials'])
@@ -180,18 +269,15 @@ def home():
         if google_credentials.access_token_expired:
             return redirect(url_for('google_callback'))
     google_logged_in = True if 'google_oauth_token' in session else False
-    google_authorization_url = url_for('oauth2.authorize', return_url=url_for('home', _external=True))
+    #google_authorization_url = url_for('oauth2.authorize', return_url=url_for('home', _external=True))
+    google_authorization_url = url_for('google_authorize_view', return_url=url_for('home', _external=True))
 
     return flask.render_template('index.html', page_title='Analysis Core',
-        #username=username,
-        #github_logged_in=github_logged_in,
-        #github_authorization_url=github_authorization_url,
         google_logged_in=google_logged_in,
         google_authorization_url=google_authorization_url)
 
 
 if __name__ == '__main__':
-    print args.oauth_environ
     if args.oauth_environ:
         print("Warning: needed to set OAUTHLIB_INSECURE_TRANSPORT=1 environment variable, via os.environ in Python.")
         os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
